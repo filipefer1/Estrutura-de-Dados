@@ -61,6 +61,50 @@ void exibirArvore(PONT raiz) {
   }
 } 
 
+PONT buscaNo(PONT raiz, TIPOCHAVE ch, PONT *pai) {
+  PONT atual = raiz;
+  *pai = NULL;
+  while(atual) {
+    if (atual->chave == ch) return atual;
+    *pai = atual;
+    if (ch < atual->chave) atual = atual->esq;
+    else atual = atual->dir;
+  }
+  return NULL;
+}
+
+PONT removeNo(PONT raiz, TIPOCHAVE ch) {
+  PONT pai, no, p, q;
+  no = buscaNo(raiz, ch, &pai);
+  if (no == NULL) return raiz;
+  if (!no->esq || !no->dir) {
+    if (!no->esq) q = no->dir;
+    else q = no->esq;
+  } else {
+    p = no;
+    q = no->esq;
+    while(q->dir) {
+      p = q;
+      q = q->dir;
+    }
+    if (p != no) {
+      p->dir = q->esq;
+      q->esq = no->esq;
+    }
+    q->dir = no->dir;
+  }
+  if (!pai) {
+    free(no);
+    return q;
+  }
+  if (ch < pai->chave) pai->esq = q;
+  else pai->dir = q;
+  printf("\nNó removido: %i\n", no->chave);
+  free(no);
+  return raiz;
+}
+
+
 int main() {
   PONT r = inicializa();
   PONT no = criaNovoNo(23);
@@ -81,9 +125,12 @@ int main() {
   r = adiciona(r, no);
   no = criaNovoNo(21);
   r = adiciona(r, no);
-
+  printf("Árvore: ");
+  exibirArvore(r);
   PONT c = contem(5, r);
-  printf("%i\n", c->chave);
-  printf("%d\n", numeroNos(r));
+  removeNo(r, 12);
+  printf("Chave encontrada: %i\n", c->chave);
+  printf("Total de nós: %d\n", numeroNos(r));
+  printf("Árvore: ");
   exibirArvore(r);
 };
